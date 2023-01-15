@@ -22,6 +22,7 @@ def cisfun(text):
     """Return C with the sring passed"""
     return 'C %s' % text.replace('_', ' ')
 
+
 @app.route('/python/')
 @app.route('/python/<string:text>')
 def python_route(text='is cool'):
