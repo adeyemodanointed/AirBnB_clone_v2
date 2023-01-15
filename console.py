@@ -73,7 +73,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -115,16 +115,28 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
+        new_args = args.partition(" ")
+        args = new_args[0]
         if not args:
             print("** class name missing **")
             return
         elif args not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
+
+        kwargs = {}
+        for arg in new_args[1].split(" "):
+            k, v = arg.split("=")
+            if self.is_int(v):
+                kwargs[k] = int(v)
+            elif self.is_float(v):
+                kwargs[k] = float(v)
+            else:
+                kwargs[k] = v.replace('_', ' ').strip('"\'')
+        obj = self.classes[args](**kwargs)
+        storage.new(obj) # store new object
         storage.save()
-        print(new_instance.id)
-        storage.save()
+        print(obj.id)
 
     def help_create(self):
         """ Help information for the create method """
@@ -319,6 +331,24 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
+    @staticmethod
+    def is_int(n):
+        """Check if number is an integer"""
+        try:
+            int(n)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def is_float(n):
+        """Check if number is a float"""
+        try:
+            float(n)
+            return True
+        except ValueError:
+            return False
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
